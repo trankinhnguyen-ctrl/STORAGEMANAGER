@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý Tồn Kho & Công Nợ Giày Dép</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-light">
+    <div id="app-shell">
+    <!-- Header & Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="fa-solid font-awesome me-2"></i>KHO GIÀY DÉP
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav nav-pills ms-auto" id="mainTab" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link text-white active" id="tab-overview" data-bs-toggle="pill" data-bs-target="#content-overview" type="button">
+                            <i class="fa-solid fa-chart-line me-1"></i> Tổng quan
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link text-white" id="tab-kho" data-bs-toggle="pill" data-bs-target="#content-kho" type="button">
+                            <i class="fa-solid fa-boxes-stacked me-1"></i> Quản lý Kho
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link text-white" id="tab-tieuthuong" data-bs-toggle="pill" data-bs-target="#content-tieuthuong" type="button">
+                            <i class="fa-solid fa-users me-1"></i> Tiểu thương / Đại lý
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link text-white" id="tab-banhang" data-bs-toggle="pill" data-bs-target="#content-banhang" type="button">
+                            <i class="fa-solid fa-cart-shopping me-1"></i> Xuất Bán Hàng
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link text-white" id="tab-congno" data-bs-toggle="pill" data-bs-target="#content-congno" type="button">
+                            <i class="fa-solid fa-file-invoice-dollar me-1"></i> Công Nợ
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div class="container-fluid my-4">
+        <div class="tab-content" id="mainTabContent">
+
+            <!-- TAB 1: TỔNG QUAN (DASHBOARD) -->
+            <div class="tab-pane fade show active" id="content-overview" role="tabpanel">
+                <h4 class="mb-3 text-secondary fw-bold">Tổng Quan Hệ Thống</h4>
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card border-0 shadow-sm border-start border-4 border-primary h-100 dashboard-kpi dashboard-kpi--primary">
+                            <div class="card-body">
+                                <div class="text-muted small">Tổng số mẫu mã</div>
+                                <div class="fs-3 fw-bold text-primary" id="kpi-tong-mau">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card border-0 shadow-sm border-start border-4 border-success h-100 dashboard-kpi dashboard-kpi--success">
+                            <div class="card-body">
+                                <div class="text-muted small">Tổng số lượng tồn kho</div>
+                                <div class="fs-3 fw-bold text-success" id="kpi-tong-tonkho">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card border-0 shadow-sm border-start border-4 border-info h-100 dashboard-kpi dashboard-kpi--info">
+                            <div class="card-body">
+                                <div class="text-muted small">Tổng giá trị tồn kho</div>
+                                <div class="fs-3 fw-bold text-info" id="kpi-tong-giatri">0 VNĐ</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card border-0 shadow-sm border-start border-4 border-danger h-100 dashboard-kpi dashboard-kpi--danger">
+                            <div class="card-body">
+                                <div class="text-muted small">Tổng công nợ chưa thu</div>
+                                <div class="fs-3 fw-bold text-danger" id="kpi-tong-congno">0 VNĐ</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4" id="overview-analytics"></div>
+
+                <!-- Cảnh báo tồn kho thấp -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white fw-bold text-danger">
+                        <i class="fa-solid fa-triangle-exclamation me-1"></i> Cảnh Báo Tồn Kho Thấp / Hết Hàng (Tồn <= 3)
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Tên sản phẩm</th>
+                                        <th>Thể loại</th>
+                                        <th>Size</th>
+                                        <th>Màu</th>
+                                        <th>Số lượng còn</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-canhbao-tonkho">
+                                    <!-- Render từ JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: QUẢN LÝ KHO HÀNG -->
+            <div class="tab-pane fade" id="content-kho" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="text-secondary fw-bold mb-0">Danh Sách Tồn Kho Giày Dép</h4>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalSanPham" id="btn-open-add-sp" data-role-guard="manager">
+                        <i class="fa-solid fa-plus me-1"></i> Thêm Sản Phẩm Mới
+                    </button>
+                </div>
+
+                <!-- Search & Filter -->
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="search-sp-ten" placeholder="Tìm kiếm theo tên sản phẩm...">
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="filter-sp-theloai">
+                                    <option value="">-- Tất cả thể loại --</option>
+                                    <option value="Dép sục">Dép sục</option>
+                                    <option value="Sneaker">Sneaker</option>
+                                    <option value="Sandal">Sandal</option>
+                                    <option value="Giày Tây">Giày Tây</option>
+                                    <option value="2 lớp">2 lớp</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <select class="form-select" id="filter-sp-trangthai">
+                                    <option value="">-- Tất cả trạng thái --</option>
+                                    <option value="còn hàng">Còn hàng</option>
+                                    <option value="hết hàng">Hết hàng</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Kho -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Tên sản phẩm</th>
+                                        <th>Thể loại</th>
+                                        <th>Size</th>
+                                        <th>Màu</th>
+                                        <th>Tồn kho</th>
+                                        <th>Giá bán</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-danhsach-sp">
+                                    <!-- Render từ kho.ts -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: TIỂU THƯƠNG / ĐẠI LÝ -->
+            <div class="tab-pane fade" id="content-tieuthuong" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="text-secondary fw-bold mb-0">Quản Lý Tiểu Thương / Đại Lý</h4>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTieuThuong" id="btn-open-add-tt" data-role-guard="manager">
+                        <i class="fa-solid fa-user-plus me-1"></i> Thêm Đại Lý Mới
+                    </button>
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-5">
+                        <input type="text" class="form-control" id="search-tieuthuong" placeholder="Tìm kiếm theo tên hoặc số điện thoại...">
+                    </div>
+                </div>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Tên Đại Lý / Tiểu Thương</th>
+                                        <th>Số điện thoại</th>
+                                        <th>Địa chỉ</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-danhsach-tt">
+                                    <!-- Render từ tieuthuong.ts -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: BÁN HÀNG (POS XUẤT KHO) -->
+            <div class="tab-pane fade" id="content-banhang" role="tabpanel">
+                <h4 class="text-secondary fw-bold mb-3">Tạo Đơn Hàng / Xuất Kho</h4>
+                <div class="row g-3">
+                    <!-- Chọn khách hàng & Giỏ hàng -->
+                    <div class="col-lg-7">
+                        <div class="card border-0 shadow-sm mb-3">
+                            <div class="card-header bg-white fw-bold">Thông Tin Đơn Hàng</div>
+                            <div class="card-body">
+                                <div class="mb-3 position-relative">
+                                    <label class="form-label fw-semibold">Chọn Đại Lý / Tiểu Thương Mua Hàng (*)</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        id="select-pos-tieuthuong"
+                                        placeholder="Tìm kiếm đại lý / tiểu thương..."
+                                        autocomplete="off"
+                                    >
+                                    <input type="hidden" id="select-pos-tieuthuong-id">
+                                    <div id="select-pos-tieuthuong-suggestions" class="list-group position-absolute w-100 shadow-sm border rounded-2 overflow-hidden d-none" style="z-index: 1000; top: 100%; left: 0; margin-top: 6px; max-height: 240px; overflow-y: auto;"></div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th>Sản phẩm</th>
+                                                <th>Size/Màu</th>
+                                                <th>Số lượng</th>
+                                                <th>Đơn giá</th>
+                                                <th>Thành tiền</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="cart-pos-items">
+                                            <!-- Render danh sách mặt hàng được chọn mua -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="fw-bold fs-5">Tổng Giá Trị Đơn Hàng:</span>
+                                    <span class="fw-bold fs-4 text-primary" id="pos-tong-tien">0 VNĐ</span>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Số tiền khách trả trước:</label>
+                                        <input type="number" class="form-control" id="pos-da-thanhtoan" value="0">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Còn Nợ Lại:</label>
+                                        <input type="text" class="form-control bg-light" id="pos-con-no" readonly value="0 VNĐ">
+                                    </div>
+                                </div>
+                                <button class="btn btn-success w-100 mt-3 py-2 fw-bold" id="btn-xacnhan-xuatban">
+                                    <i class="fa-solid fa-check-circle me-1"></i> XÁC NHẬN XUẤT BÁN & LƯU ĐƠN
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chọn sản phẩm thêm vào giỏ -->
+                    <div class="col-lg-5">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white fw-bold">Danh Sách Sản Phẩm Khả Dụng</div>
+                            <div class="card-body p-0">
+                                <div class="p-2">
+                                    <input type="text" class="form-control form-control-sm" id="search-pos-sp" placeholder="Lọc nhanh giày dép...">
+                                </div>
+                                <div class="list-group list-group-flush overflow-auto" style="max-height: 400px;" id="pos-list-sanpham">
+                                    <!-- Render danh sản phẩm có tonKho > 0 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: QUẢN LÝ CÔNG NỢ -->
+            <div class="tab-pane fade" id="content-congno" role="tabpanel">
+                <h4 class="text-secondary fw-bold mb-3">Quản Lý Công Nợ Đại Lý</h4>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="row g-3 align-items-center mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label fw-semibold">Tìm kiếm đại lý</label>
+                                <div class="position-relative">
+                                    <input id="search-congno" type="text" class="form-control" placeholder="Nhập tên đại lý để tìm hóa đơn..." autocomplete="off">
+                                    <div id="congno-suggestions" class="list-group position-absolute w-100 shadow-sm border rounded overflow-hidden d-none" style="z-index: 10; top: 100%; left: 0; margin-top: 4px;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Tìm kiếm hóa đơn theo mã</label>
+                                <input id="search-congno-ma" type="text" class="form-control" placeholder="Nhập mã hóa đơn..." autocomplete="off">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Lọc hóa đơn theo ngày</label>
+                                <input id="filter-congno-ngay" type="date" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Mã Đơn</th>
+                                        <th>Tên Đại Lý</th>
+                                        <th>Tổng Tiền</th>
+                                        <th>Đã Trả</th>
+                                        <th>Còn Nợ</th>
+                                        <th>Ngày Tạo</th>
+                                        <th>Trạng Thái</th>
+                                        <th>Thao Tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-danhsach-congno">
+                                    <tr>
+                                        <td colspan="9" class="text-center text-muted py-4">Vui lòng tìm đại lý để hiển thị hóa đơn và tổng nợ.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="border-top pt-3 mt-3 d-flex justify-content-end align-items-center gap-2">
+                            <span class="fw-semibold text-secondary">Tổng nợ:</span>
+                            <span id="congno-total-debt" class="fw-bold text-danger fs-5">0 đ</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    </div>
+
+    <!-- MODAL FORM: THÊM / SỬA SẢN PHẨM GIÀY DÉP -->
+    <div class="modal fade" id="modalSanPham" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalSanPhamLabel">Thêm / Chỉnh Sửa Sản Phẩm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-sanpham">
+                        <input type="hidden" id="sp-id">
+                        <div class="mb-3">
+                            <label class="form-label">Tên sản phẩm (*)</label>
+                            <input type="text" class="form-control" id="sp-ten" required placeholder="Ví dụ: Crocs Classic Clog">
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Thể loại (*)</label>
+                                <div class="input-group">
+                                    <select class="form-select" id="sp-theloai" required></select>
+                                    <button type="button" class="btn btn-outline-danger" id="btn-remove-category" title="Xóa thể loại đang chọn">-</button>
+                                </div>
+                                <div class="input-group mt-2">
+                                    <input type="text" class="form-control" id="sp-new-category" placeholder="Nhập thể loại mới">
+                                    <button type="button" class="btn btn-primary" id="btn-save-category">Thêm</button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Màu sắc (*)</label>
+                                <input type="text" class="form-control" id="sp-mau" required placeholder="Trắng, Đen...">
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Size (*)</label>
+                                <input type="number" class="form-control" id="sp-size" required min="1" placeholder="38">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Tồn kho (*)</label>
+                                <input type="number" class="form-control" id="sp-tonkho" required min="0" placeholder="10">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Giá bán (*)</label>
+                                <input type="number" class="form-control" id="sp-gia" required min="0" placeholder="VNĐ">
+                            </div>
+                        </div>
+                        <div class="modal-footer px-0 pb-0">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-primary" id="btn-save-sp">Lưu Sản Phẩm</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FORM: THÊM / SỬA TIỂU THƯƠNG -->
+    <div class="modal fade" id="modalTieuThuong" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalTieuThuongLabel">Thông Tin Đại Lý</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-tieuthuong">
+                        <input type="hidden" id="tt-id">
+                        <div class="mb-3">
+                            <label class="form-label">Tên Đại Lý / Tiểu Thương (*)</label>
+                            <input type="text" class="form-control" id="tt-ten" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Số điện thoại (*)</label>
+                            <input type="text" class="form-control" id="tt-sdt" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Địa chỉ</label>
+                            <input type="text" class="form-control" id="tt-diachi">
+                        </div>
+                        <div class="modal-footer px-0 pb-0">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-primary" id="btn-save-tt">Lưu Đại Lý</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FORM: THU NỢ ĐẠI LÝ -->
+    <div class="modal fade" id="modalThuNo" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Thu Nợ Đơn Hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-thuno">
+                        <input type="hidden" id="thuno-hoadon-id">
+                        <div class="mb-3">
+                            <label class="form-label">Số tiền còn nợ:</label>
+                            <input type="text" class="form-control bg-light" id="thuno-con-no-display" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nhập số tiền trả thêm (*):</label>
+                            <input type="number" class="form-control" id="thuno-sotien-nhap" required min="1">
+                        </div>
+                        <div class="modal-footer px-0 pb-0">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                            <button type="submit" class="btn btn-success">Xác Nhận Thu Nợ</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalChiTietHoaDon" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalChiTietHoaDonTitle">Chi tiết hóa đơn</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalChiTietHoaDonBody"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script type="module" src="./dist/src/service/main.js"></script>
+</body>
+</html>
